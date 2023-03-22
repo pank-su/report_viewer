@@ -1,4 +1,4 @@
-% rebase('layout.tpl', title=title, year=year)
+% rebase('layout.tpl', title=title)
 
 <h2>{{ title }}.</h2>
 <h3>{{ message }}</h3>
@@ -8,4 +8,4 @@
 <p>{{func2}}</p>
 <p>{{func3}}</p>
 <p>{{func4}}</p>
-<img src="static/about.jpg" align=""></img>
+<img src="static/images/about.jpg" />

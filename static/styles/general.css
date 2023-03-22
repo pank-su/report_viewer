@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+.myAppBar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    gap: 6px;
+    height: 64px;
+}
+
+:root p {
+    font-family: "Roboto";
+}
+
+.title {
+    text-align: center;
+    margin: auto;
+    padding-right: 24px;
+}
+
+body {
+    margin: 0;
+}
+
+.icon-button {
+    background: transparent;
+    border: none;
+    height: 48px;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    display: flex;
+    flex-direction: column;
+}
+
+.icon-button img {
+    height: 46px;
+    width: 46px;
+    margin: auto;
+}
+
+/*Тут будет крутой hovered эффект*/
+.icon-button img:hover {
+    background: #49454F14;
+    border-radius: 50%;
+}
+
+.navigation-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 44px 0px 56px;
+    width: 80px;
+    height: 100vh;
+}
+
+.fab {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 56px;
+    height: 56px;
+    margin: 12px;
+    border: none;
+    border-radius: 16px;
+}
+
+.fab img {
+    margin: auto;
+    width: 24px;
+    height: 24px;
+}
+
+.fab:hover {
+    background: #EFCCB3;
+
+}
+
+.navs {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 56px;
+    margin: 40px 12px 12px;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+}
+
+.naaav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: auto;
+}
+
+.nav.active img{
+
+}
+
+.nav p{
+    /*font-weight: bold;*/
+    margin-top: 10px;
+    font-size: 13px;
+}
