@@ -29,12 +29,12 @@ def contact():
 def about():
     """Renders the about page."""
     return dict(
-        title='О нас',
-        message='Здесь вы можете ознакомиться с возможностями нашего сайта',
+        title='About us',
+        message='Here you can see the posibilities of our site',
         year=datetime.now().year,
-        functions='На этом сайте можно:',
-        func1='делиться отчётами',
-        func2='просматривать отчёты',
-        func3='загружать отчёты',
-        func4='менять формат отчётов'
+        functions='At this site you could:',
+        func1='share reports',
+        func2='watch reports',
+        func3='download reports',
+        func4='cgange report format'
     )
