@@ -5,12 +5,13 @@
 
 <address>
     One Microsoft Way<br />
-    Redmond, WA 98052-6399<br />
     <abbr title="Phone">P:</abbr>
-    425.555.0100
+    +7(911) 727-80-25
 </address>
 
 <address>
-    <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
-    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
+    <strong>Василий Панков:</strong>   <a href="https://web.telegram.org/">Telegram</a> <strong>@pank_su</strong> <a href="https://github.com/pank-su ">GitHub</a> <br />
+    <strong>Тимофей Мерлин:</strong> <br />
+    <strong>Челноков Алексей:</strong> <a href="https://github.com/Shizik-tech">GitHub</a>
+
 </address>
