@@ -5,11 +5,12 @@
 сайта на компьютер пользователя, менять формат файлов отчётов.
 
 ### При разработке использовались:
-Среда разработки Visual Studio 2019;
-Язык программирования Python;
-Сайт figma https://www.figma.com/;
-Система контроля версий git;
-Веб-сервис для хостинга IT проектов GitHub https://github.com/;
+- Среда разработки Visual Studio 2019 и JetBrains Pycharm;
+- Язык программирования Python;
+- Сайт figma https://www.figma.com/;
+- Система контроля версий git;
+- Веб-сервис для хостинга GIT-репозиториев GitHub https://github.com/;
+- Конвертер текстовых документов Pandoc https://pandoc.org;
 
 
 ### Особенность проекта :
@@ -26,10 +27,11 @@
 
 
 ### Шаги по установке и запуске программы
-```Shell
+```shell
 git clone https://github.com/pank-su/report_viewer
 cd report_viewer
 pip install -r requirements.txt
+python installer.py
 python app.py
 ```
 ### Разработчики:

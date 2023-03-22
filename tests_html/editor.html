@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Editor</title>
+    <link rel="stylesheet" type="text/css" href="../static/styles/general.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/material-theme/theme.css"/>
+
+
+</head>
+<body>
+<div style="display: flex; flex-direction: row; width: 100vw">
+    <div id="editor" class="surface-first">
+        <form action="http://localhost:5555/upload" method="post" enctype="multipart/form-data">
+            <label class="label-large">Отправьте ваш крутой файл к нам</label>
+            <input type="file"
+                   id="inputFile" name="inputFile"
+
+                   accept=".docx, .org, .md, .txt, .html, .tex">
+            <input type="submit" id="submit">
+        </form>
+    </div>
+    <iframe id="preview" src="../preview/test.html">
+        </iframe>
+
+</div>
+</body>
+</html>

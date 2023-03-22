@@ -1,7 +1,6 @@
 % rebase('layout.tpl', title=title)
 
 <h2>{{ title }}.</h2>
-<h3>{{ message }}</h3>
 
 
 <img src="/static/images/contact_phone.jpg" align=""></img>
