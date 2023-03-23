@@ -144,34 +144,55 @@ body {
     margin: 10px 0px;
 }
 
-#preview{
+#preview {
     width: 100%;
     height: 100%;
 }
 
-.content{
+.content {
     width: 100%;
     height: 100%;
 }
 
-body{
+body {
     height: 100vh;
 }
 
-body div{
+body div {
     height: 100%;
 }
 
-iframe::content{
+iframe::content {
     padding: 0;
 
 }
 
-.area{
+.area {
     height: 100%;
     width: 100%;
     background: transparent;
     border: none;
     margin: 10px;
     font-family: "JetBrains Mono", serif;
+}
+
+
+#shareButton {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    z-index: 2;
+    bottom: 31px;
+    right: 31px;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 28px;
+
+}
+
+#shareButton img{
+    padding-right: 8px;
 }
