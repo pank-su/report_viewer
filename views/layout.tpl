@@ -26,7 +26,7 @@
         ReportViewer
     </p>
 </div>
-<div style="display: flex; flex-direction: row">
+<div style="display: flex; flex-direction: row; height: 100%;">
     <div id="rail" class="navigation-rail surface-first">
         <button class="fab tertiary-container ">
             <img src="/static/images/edit.png">
@@ -86,6 +86,6 @@
         }
     }
 
-    checkTitle({{title}})
+    checkTitle("{{title}}")
 </script>
 </html>
