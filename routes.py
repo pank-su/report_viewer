@@ -2,12 +2,12 @@
 Routes and views for the bottle application.
 """
 import os
+import sqlite3
+from datetime import datetime
 from random import getrandbits
 
 import pypandoc
 from bottle import route, view, request, response, redirect
-from datetime import datetime
-import sqlite3
 
 # переменная, содержащая секретный ключ, используемый для защиты куков
 SECRET = "ABOBA"
@@ -37,14 +37,14 @@ def editor():
             return dict(
                 year=datetime.now().year,
                 filecontent="",
-                secret = secret
+                secret=secret
             )
 
         with open(file, "r", encoding="utf-8") as f:
             return dict(
                 year=datetime.now().year,
                 filecontent=f.read(),
-                secret = secret
+                secret=secret
             )
 
 
@@ -146,6 +146,7 @@ def preview_reload():
     file = cur.execute("""SELECT file_path FROM files WHERE user_uid = ?""", (secret,)).fetchone()[0]
     with open(f"{file}", "w", encoding="utf-8") as f:
         f.write(request.json['data'])
+
 
 @route("/preview/<secret>")
 @view("preview")
