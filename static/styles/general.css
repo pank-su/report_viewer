@@ -196,4 +196,6 @@ iframe::content {
 
 #shareButton img {
     padding-right: 8px;
+    height: 24px;
+    width: 24px;
 }

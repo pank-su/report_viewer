@@ -39,7 +39,6 @@
                         Editor
                     </p>
                 </div>
-
             </a>
             <a class="nav" id="nav2" href="/about">
                 <div class="naaav" >
@@ -56,8 +55,14 @@
                         Contact
                     </p>
                 </div>
-
-
+            </a>
+            <a class="nav" id="nav4" href="/profile">
+                <div class="naaav" >
+                <img class="icon" src="/static/images/contacts.png"/>
+                    <p class="label-medium" style="text-align: center">
+                        Contact
+                    </p>
+                </div>
             </a>
 
         </nav>
@@ -80,6 +85,9 @@
                 document.getElementById("nav3").classList.add("active")
                 break;
             case 'About us':
+                document.getElementById("nav2").classList.add("active")
+                break;
+            case 'Profile':
                 document.getElementById("nav2").classList.add("active")
                 break;
 
