@@ -20,6 +20,9 @@
     </div>
     <iframe id="preview" src="/preview">
     </iframe>
+    <button id="shareButton" onclick="copyText(window.location.hostname + '/preview/{{secret}}')" class="primary-container">
+        <img src="../static/images/share.png"/>
+    </button>
 </div>
 <script>
 
@@ -40,8 +43,11 @@
         setTimeout(function() {
             document.getElementById('preview').contentWindow.location.reload();
         }, 500);
+    }
 
-
+    function copyText(text) {
+        navigator.clipboard.writeText(text);
+        alert("Ссылка скопирована в буфер обмена")
     }
 
 </script>

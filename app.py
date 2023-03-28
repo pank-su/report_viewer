@@ -6,7 +6,7 @@ import bottle
 import os
 import sys
 
-# routes contains the HTTP handlers for our server and must be imported.
+# routes contains the HTTP handlers for our server and must be imported. **NOT DELETE**
 import routes
 
 if '--debug' in sys.argv[1:] or 'SERVER_DEBUG' in os.environ:

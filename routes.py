@@ -2,14 +2,16 @@
 Routes and views for the bottle application.
 """
 import os
+import sqlite3
+from datetime import datetime
 from random import getrandbits
 
 import pypandoc
 from bottle import route, view, request, response, redirect
-from datetime import datetime
-import sqlite3
 
+# переменная, содержащая секретный ключ, используемый для защиты куков
 SECRET = "ABOBA"
+# это переменная, содержащая путь к директории, в которой будут храниться файлы превью
 preview_path = "./preview"
 
 
@@ -19,11 +21,11 @@ preview_path = "./preview"
 def editor():
     """Renders the home page."""
     secret = request.get_cookie("secret", secret=SECRET)
-    print(secret)
     if secret is None:
         return dict(
             year=datetime.now().year,
-            filecontent=""
+            filecontent="",
+            secret=secret
         )
     else:
         conn = sqlite3.connect("info.db")
@@ -33,13 +35,15 @@ def editor():
         except TypeError:
             return dict(
                 year=datetime.now().year,
-                filecontent=""
+                filecontent="",
+                secret=secret
             )
 
         with open(file, "r", encoding="utf-8") as f:
             return dict(
                 year=datetime.now().year,
-                filecontent=f.read()
+                filecontent=f.read(),
+                secret=secret
             )
 
 
@@ -72,8 +76,10 @@ def about():
 @route('/upload', method='POST')
 @view("editor")
 def do_upload():
+    """Обработчик маршрута, которая обрабатывает POST-запрос на загрузку файла. Она сохраняет загружxенный файл во
+    временную директорию, конвертирует его в формат org с помощью pypandoc, генерирует случайный хэш-код и сохраняет
+    конвертированный файл с использованием этого хэш-кода в постоянную директорию"""
     upload = request.files.get('inputFile')
-    print(upload)
 
     temp_path = "./tmp"
     save_path = "./save"
@@ -107,7 +113,6 @@ def do_upload():
     cur.close()
     conn.close()
     preview_html = pypandoc.convert_file(hash_path, 'html')
-    print(hash)
     with open(f"{preview_path}/{hash}", "w", encoding="utf-8") as f:
         f.write(preview_html)
     response.set_cookie("secret", hash, secret=SECRET)
@@ -120,15 +125,22 @@ def do_upload():
 @route('/preview')
 @view("preview")
 def preview():
-    secret = request.get_cookie("secret", secret=SECRET)
-    with open(f"{preview_path}/{secret}", "r", encoding="utf-8") as f:
+    try:
+        secret = request.get_cookie("secret", secret=SECRET)
+        with open(f"{preview_path}/{secret}", "r", encoding="utf-8") as f:
+            return dict(
+                previewContent=f.read()
+            )
+    except Exception:
         return dict(
-            previewContent=f.read()
+            previewContent="<p>Здесь будет предпросмотр сайта</p>"
         )
+
 
 
 @route("/preview_reload", method='POST')
 def preview_reload():
+    """Обработчик маршрута, который вызывается при изменении содержимого файла пользователем в редакторе"""
     secret = request.get_cookie("secret", secret=SECRET)
     with open(f"{preview_path}/{secret}", "w", encoding="utf-8") as f:
         f.write(pypandoc.convert_text(request.json['data'], 'html', format="org"))
@@ -137,3 +149,12 @@ def preview_reload():
     file = cur.execute("""SELECT file_path FROM files WHERE user_uid = ?""", (secret,)).fetchone()[0]
     with open(f"{file}", "w", encoding="utf-8") as f:
         f.write(request.json['data'])
+
+
+@route("/preview/<secret>")
+@view("preview")
+def preview_everyone(secret):
+    with open(f"{preview_path}/{secret}", "r", encoding="utf-8") as f:
+        return dict(
+            previewContent=f.read()
+        )
