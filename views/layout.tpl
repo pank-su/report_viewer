@@ -26,7 +26,7 @@
         ReportViewer
     </p>
 </div>
-<div style="display: flex; flex-direction: row; height: 100%;">
+<div style="display: flex; flex-direction: row; height: 93%;">
     <div id="rail" class="navigation-rail surface-first">
         <button class="fab tertiary-container ">
             <img src="/static/images/edit.png">

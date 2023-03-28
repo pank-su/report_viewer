@@ -8,7 +8,7 @@
     align-items: center;
 
     gap: 6px;
-    height: 64px;
+    height: 7%;
 }
 
 :root p {
@@ -120,7 +120,7 @@ body {
 
 #editor {
     display: flex;
-
+    height: 100%;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -147,6 +147,7 @@ body {
 #preview {
     width: 100%;
     height: 100%;
+    border: none;
 }
 
 .content {
@@ -154,12 +155,12 @@ body {
     height: 100%;
 }
 
-body {
-    height: 100vh;
+.content div{
+    height: 100%;
 }
 
-body div {
-    height: 100%;
+body {
+    height: 100vh;
 }
 
 iframe::content {
@@ -175,11 +176,6 @@ iframe::content {
     margin: 10px;
     font-family: "JetBrains Mono", serif;
 }
-<<<<<<< HEAD
-#text {
-    font-family: "Roboto";
-    background: #F7ECF2;
-=======
 
 
 #shareButton {
@@ -200,5 +196,4 @@ iframe::content {
 
 #shareButton img {
     padding-right: 8px;
->>>>>>> d53cc589ba62b032264f06f22b74ba96ad26c294
 }
