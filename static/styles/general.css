@@ -175,3 +175,7 @@ iframe::content{
     margin: 10px;
     font-family: "JetBrains Mono", serif;
 }
+#text {
+    font-family: "Roboto";
+    background: #F7ECF2;
+}
