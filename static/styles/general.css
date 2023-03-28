@@ -175,6 +175,11 @@ iframe::content {
     margin: 10px;
     font-family: "JetBrains Mono", serif;
 }
+<<<<<<< HEAD
+#text {
+    font-family: "Roboto";
+    background: #F7ECF2;
+=======
 
 
 #shareButton {
@@ -195,4 +200,5 @@ iframe::content {
 
 #shareButton img {
     padding-right: 8px;
+>>>>>>> d53cc589ba62b032264f06f22b74ba96ad26c294
 }
