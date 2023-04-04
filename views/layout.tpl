@@ -25,12 +25,17 @@
     <p class="title-large title">
         ReportViewer
     </p>
+    % if userExist:
+    <a class="icon-button" href="/logout">
+        <img style="width: 24px; height: 24px" src="/static/images/logout.png"/>
+    </a>
+    % end
 </div>
 <div style="display: flex; flex-direction: row; height: 93%;">
     <div id="rail" class="navigation-rail surface-first">
-        <button class="fab tertiary-container ">
+        <a class="fab tertiary-container " href="/editor">
             <img src="/static/images/edit.png">
-        </button>
+        </a>
         <nav class="navs">
             <a class="nav" id="nav1" href="/editor">
                 <div class="naaav">
@@ -56,18 +61,9 @@
                     </p>
                 </div>
             </a>
-            <a class="nav" id="nav4" href="/profile">
-                <div class="naaav" >
-                <img class="icon" src="/static/images/contacts.png"/>
-                    <p class="label-medium" style="text-align: center">
-                        Contact
-                    </p>
-                </div>
-            </a>
-
         </nav>
     </div>
-    <div class="content">
+    <div class="content surface-first">
         {{!base}}
     </div>
 </div>
@@ -85,9 +81,6 @@
                 document.getElementById("nav3").classList.add("active")
                 break;
             case 'About us':
-                document.getElementById("nav2").classList.add("active")
-                break;
-            case 'Profile':
                 document.getElementById("nav2").classList.add("active")
                 break;
 

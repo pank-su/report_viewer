@@ -2,14 +2,15 @@
 Routes and views for the bottle application.
 """
 import os
-import sqlite3
-import time
+import shutil
 from datetime import datetime
-from random import getrandbits
 
 import pypandoc
-from bottle import route, view, request, response, redirect
+import storage3.utils
+from bottle import route, view, request, response, FileUpload, BaseRequest, redirect
 from supabase import create_client, Client
+
+BaseRequest.MEMFILE_MAX = 1024 * 1024 # ограничение по памяти
 
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
@@ -22,7 +23,17 @@ data = supabase.auth.sign_in_with_oauth({
 # переменная, содержащая секретный ключ, используемый для защиты куков
 SECRET = os.environ.get("SECRET_TOKEN")
 # это переменная, содержащая путь к директории, в которой будут храниться файлы превью
-preview_path = "./preview"
+savable_path = "./save/"
+temporary_path = "./temp/"
+
+
+def check_path(path: str) -> None:
+    """Функция, которая проверяет есть ли путь, если нет, то создаёт его"""
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+check_path(savable_path)
 
 
 @route('/')
@@ -30,31 +41,41 @@ preview_path = "./preview"
 @view('editor')
 def editor():
     query = request.query
-    user = None
+    user_id = None
     if request.query_string != "":
         try:
-            response.set_cookie("access_token", query["access_token"], secret=SECRET)
-            response.set_cookie("expires_in", query["expires_in"], secret=SECRET)
-            response.set_cookie("provider_token", query["provider_token"], secret=SECRET)
-            response.set_cookie("refresh_token", query["refresh_token"], secret=SECRET)
             supabase.auth.refresh_session(query["refresh_token"])
-            user = supabase.auth.get_user()
+            user_id = supabase.auth.get_user().user.id
         except Exception as e:
-            print(e)
-            user = None
-    print(user)
-    if user is None:
+            user_id = None
+    elif user_id is None:
         try:
-            supabase.auth.set_session(request.get_cookie("access_token", "", secret=SECRET),
-                                  request.get_cookie("refresh_token", "", secret=SECRET))
-            user = supabase.auth.get_user()
+            user_id = request.get_cookie("user_id", secret=SECRET)
         except Exception as e:
-            user = None
-    # secret = request.get_cookie("secret", secret=SECRET)
-    return dict(
-        year=datetime.now().year,
-        userExist=user is not None
-    )
+            user_id = None
+    if user_id is not None:
+        response.set_cookie("user_id", user_id, secret=SECRET)
+        try:
+            supabase.storage.create_bucket(user_id)
+        except storage3.utils.StorageException:
+            pass
+        storage = supabase.storage.get_bucket(user_id)
+        if len(storage.list()) == 0:
+            storage.upload("test.org", "./tested_file/test.org")
+        return dict(
+            year=datetime.now().year,
+            userExist=True,
+            files=storage.list(),
+            user_id = user_id
+        )
+    else:
+        return dict(
+            year=datetime.now().year,
+            userExist=False,
+            files=[],
+            user_id=""
+
+        )
 
 
 @route('/contact')
@@ -84,91 +105,108 @@ def about():
 
 
 @route('/upload', method='POST')
-@view("editor")
 def do_upload():
     """Обработчик маршрута, которая обрабатывает POST-запрос на загрузку файла. Она сохраняет загружxенный файл во
     временную директорию, конвертирует его в формат org с помощью pypandoc, генерирует случайный хэш-код и сохраняет
     конвертированный файл с использованием этого хэш-кода в постоянную директорию"""
-    upload = request.files.get('inputFile')
-
-    temp_path = "./tmp"
-    save_path = "./save"
-
-    if not os.path.exists(temp_path):
-        os.makedirs(temp_path)
-
+    upload: FileUpload = request.files.get('file')
+    check_path(temporary_path)
+    upload.save(temporary_path + upload.filename)
+    org_text = pypandoc.convert_file(temporary_path + upload.filename, 'org')
+    user_id = request.get_cookie("user_id", SECRET)
+    save_path = savable_path + user_id + "/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-
-    if not os.path.exists(preview_path):
-        os.makedirs(preview_path)
-
-    file_path = f"{temp_path}/{upload.filename}"
-    upload.save(file_path)
-    output = pypandoc.convert_file(file_path, 'org')
-    random_bits = getrandbits(128)
-    file_hash = "%032x" % random_bits
-    hash_path = f"{save_path}/{file_hash}.org"
-    with open(hash_path, "w", encoding="utf-8") as f:
-        f.write(output)
-    os.remove(file_path)
-    conn = sqlite3.connect("info.db")
-    cur = conn.cursor()
-    random_bits = getrandbits(128)
-    hash = "%032x" % random_bits
-    client_ip = request.environ.get('REMOTE_ADDR')
-    cur.execute("""INSERT INTO users VALUES (?, ?)""", (hash, client_ip))
-    cur.execute("""INSERT INTO files VALUES (?, ?)""", (hash, hash_path))
-    conn.commit()
-    cur.close()
-    conn.close()
-    preview_html = pypandoc.convert_file(hash_path, 'html')
-    with open(f"{preview_path}/{hash}", "w", encoding="utf-8") as f:
-        f.write(preview_html)
-    response.set_cookie("secret", hash, secret=SECRET)
-
-    redirect("/editor")
-
-    # return "File successfully saved to '{0}'.".format(f"{save_path}/{hash}.org")
+    filename = ".".join(upload.filename.split('.')[:-1]) + ".org"
+    new_filename = filename
+    with open(savable_path + user_id + "/" + filename, "w", encoding="utf-8") as f:
+        f.write(org_text)
+    shutil.rmtree(temporary_path)
+    is_sent = False
+    file_id = 0
+    while not is_sent:
+        try:
+            supabase.storage.get_bucket(user_id).upload(new_filename, savable_path + user_id + "/" + filename)
+            is_sent = True
+        except storage3.utils.StorageException:
+            file_id += 1
+            new_filename = ".".join(upload.filename.split('.')[:-1]) + f"_{file_id}.org"
+    return "ok"
 
 
-@route('/preview')
+def generate_preview(user_id, filename):
+    """Функция, которая генерирует превью"""
+    save_path = savable_path + user_id + "/"
+    check_path(save_path)
+    with open(save_path + filename, "wb") as f:
+        res = supabase.storage.from_(user_id).download(filename)
+        f.write(res)
+    html_text = "С файлом что-то не так"
+    try:
+        html_text = pypandoc.convert_file(save_path + filename, 'html')
+    except RuntimeError:
+        """Если файл не текст"""
+        url = supabase.storage.from_(user_id).get_public_url(filename)
+        html_text = f"<img src='{url}' />"
+    return html_text
+
+
+@route("/preview")
 @view("preview")
 def preview():
-    try:
-        secret = request.get_cookie("secret", secret=SECRET)
-        with open(f"{preview_path}/{secret}", "r", encoding="utf-8") as f:
-            return dict(
-                previewContent=f.read()
-            )
-    except Exception:
-        return dict(
-            previewContent="<p>Здесь будет предпросмотр сайта</p>"
-        )
+    return dict(
+        previewContent="<p>Site preview here</p>"
+    )
+
+
+@route('/preview/<filename>')
+@view("preview")
+def preview(filename):
+    user_id = request.get_cookie("user_id", secret=SECRET)
+    return dict(previewContent=generate_preview(user_id, filename))
+
+
+@route('/s/<user_id>/<filename>')
+@view("preview")
+def preview(user_id, filename):
+    return dict(previewContent=generate_preview(user_id, filename))
 
 
 @route("/preview_reload", method='POST')
 def preview_reload():
     """Обработчик маршрута, который вызывается при изменении содержимого файла пользователем в редакторе"""
-    secret = request.get_cookie("secret", secret=SECRET)
-    with open(f"{preview_path}/{secret}", "w", encoding="utf-8") as f:
-        f.write(pypandoc.convert_text(request.json['data'], 'html', format="org"))
-    conn = sqlite3.connect("info.db")
-    cur = conn.cursor()
-    file = cur.execute("""SELECT file_path FROM files WHERE user_uid = ?""", (secret,)).fetchone()[0]
-    with open(f"{file}", "w", encoding="utf-8") as f:
-        f.write(request.json['data'])
+    filename = request.json["filename"]
+    data = request.json["data"]
+    print(data)
+    user_id = request.get_cookie("user_id", secret=SECRET)
+    supabase.storage.from_(user_id).remove(filename)
+    check_path(temporary_path)
+    with open(temporary_path + filename, "w", encoding="utf-8") as f:
+        f.write(data)
+    supabase.storage.from_(user_id).upload(filename, temporary_path + filename)
+
+    # shutil.rmtree(temporary_path)
+    return "ok"
 
 
-@route("/preview/<secret>")
-@view("preview")
-def preview_everyone(secret):
-    with open(f"{preview_path}/{secret}", "r", encoding="utf-8") as f:
-        return dict(
-            previewContent=f.read()
-        )
+@route("/content/<filename>")
+def get_content(filename):
+    """Сохраняет файл в директории save_path и возвращает значение"""
+    user_id = request.get_cookie("user_id", SECRET)
+    save_path = savable_path + user_id + "/"
+    check_path(save_path)
+    if user_id is None:
+        return None
+    with open(save_path + filename, "wb") as f:
+        res = supabase.storage.from_(user_id).download(filename)
+        f.write(res)
+    with open(save_path + filename, "r", encoding="utf-8") as f:
+        return f.read()
 
 
 @route("/logout")
 def logout():
     supabase.auth.sign_out()
+    response.set_cookie("user_id", "")
+    redirect("/")
+

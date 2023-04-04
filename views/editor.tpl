@@ -1,23 +1,25 @@
-% rebase('layout.tpl', title='Editor')
+% rebase('layout.tpl', title='Editor', userExist=userExist)
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%">
+
+<div class="twos" id="editor_page" style="display: grid; width: 100%">
+    % if userExist:
+    <div id="files" class="surface-first">
+        <button class="primary filledButton fileButton" onclick="fileSend()">Add file</button>
+        % for file in files:
+        <button class="fileButton surface-first" onclick="selectThis(this)">{{file["name"]}}</button>
+        % end
+    </div>
+    % end
     <div id="editor" class="surface-first">
         % if userExist:
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <label class="label-large">Отправьте ваш крутой файл к нам</label>
-            <input type="file"
-                   id="inputFile" name="inputFile"
-
-                   accept=".docx, .org, .md, .txt, .html, .tex">
-            <input type="submit" id="submit">
-        </form>
+        <textarea readonly id="enterArea" onchange="onEdit(this.value)" class="area" aria-label="">You can edit in this space</textarea>
         % end
         % if not userExist:
         <div>
             <p>For using this app you need authorised</p>
             <a href="https://gnfhxumqcggerkhmzajj.supabase.co/auth/v1/authorize?provider=github">
-                <button class="GitHub">
-                    <p>Войти с помощью GitHub</p>
+                <button class="primary filledButton">
+                    Sign In with GitHub
                 </button>
             </a>
 
@@ -26,12 +28,15 @@
     </div>
     <iframe id="preview" src="/preview">
     </iframe>
-    <button id="shareButton" onclick="copyText(document.location.hostname + '/preview/null')"
+    <button id="shareButton" onclick="copyText(document.location.href + '/s/{{user_id}}/' + selectedFile)"
             class="primary-container">
-        <img src="../static/images/share.png"/>
+        <img src="/static/images/share.png"/>
     </button>
 </div>
 <script>
+
+
+    var selectedFile = ""
 
     // Исправляем ссылку с oauth 2 на нужную для чтения bottle
     if (document.location.href.includes("/#"))
@@ -46,20 +51,70 @@
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                var json = JSON.parse(xhr.responseText);
-                // console.log(json.email + ", " + json.password);
+                document.getElementById('preview').contentWindow.location.reload();
             }
         };
-        var data = JSON.stringify({"data": text});
+        var data = JSON.stringify({"data": text, "filename": selectedFile});
         xhr.send(data);
-        setTimeout(function () {
-            document.getElementById('preview').contentWindow.location.reload();
-        }, 500);
     }
 
     function copyText(text) {
         navigator.clipboard.writeText(text);
-        alert("Ссылка скопирована в буфер обмена")
+        // alert("Ссылка скопирована в буфер обмена")
     }
+
+
+    function addClass() {
+        document.getElementById("editor_page").classList.add("threes")
+    }
+
+    function selectThis(btn) {
+        btn.classList.add('selected')
+        fileButtons = document.getElementsByClassName('fileButton')
+        for (let fileButton of fileButtons) {
+            if (fileButton === btn) {
+
+            } else if (fileButton.classList.contains('selected')) {
+                fileButton.classList.remove('selected')
+            }
+        }
+        selectedFile = btn.textContent
+        xhr.open("GET", "/content/" + btn.textContent, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                document.getElementById("enterArea").removeAttribute("readonly")
+                document.getElementById("enterArea").textContent = xhr.responseText
+
+            } else{
+
+            }
+        };
+        xhr.send()
+        document.getElementById("preview").src = "/preview/" + selectedFile
+    }
+
+    function fileSend() {
+        const input = document.createElement('input');
+        input.type = 'file';
+
+        input.onchange = e => {
+            let file = e.target.files[0];
+            const form = new FormData()
+            form.append("file", file)
+            fetch("/upload", {method: "POST", body: form}).then(function (r) {
+                // если файл загрузился, то перезагружаем страницу
+                if (r.ok){
+                    location.reload()
+                }
+            })
+        }
+        input.click();
+    }
+
+    // Если пользователь есть, то добавляем класс к основному div, для изменения стилей
+    % if userExist:
+    addClass()
+    % end
+
 
 </script>

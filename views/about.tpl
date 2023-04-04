@@ -1,5 +1,5 @@
 <div id="text" align=center bgcolor="#F7ECF2">
-% rebase('layout.tpl', title=title)
+% rebase('layout.tpl', title=title, userExist=False)
 <h2 id="about_title">{{ title }}.</h2>
 <h3 id="about_message">{{ message }}</h3>
 <p>{{functions}}</p>

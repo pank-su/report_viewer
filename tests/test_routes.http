@@ -1,0 +1,2 @@
+GET http://localhost:5555/content/report.org
+Cookie: user_id=bf52fcc3-5c7c-4680-bff8-f2feed952dfa

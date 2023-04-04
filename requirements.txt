@@ -1,3 +1,4 @@
 bottle~=0.12
 pypandoc~=1.11
 supabase~=1.0.2
+storage3~=0.5.2

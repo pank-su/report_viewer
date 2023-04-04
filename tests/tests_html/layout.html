@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="../static/material-theme/theme.css"/>
-    <link rel="stylesheet" type="text/css" href="../static/styles/general.css"/>
+    <link rel="stylesheet" type="text/css" href="../../static/material-theme/theme.css"/>
+    <link rel="stylesheet" type="text/css" href="../../static/styles/general.css"/>
 
     <title>Test</title>
 </head>
@@ -17,7 +17,7 @@
 <body>
 <div class="myAppBar surface-secondary">
     <button class="icon-button" onclick="toggleVisibility('rail')">
-        <img src="../static/images/leading-icon.png"/>
+        <img src="../../static/images/leading-icon.png"/>
     </button>
 
     <p class="title-large title">
@@ -26,22 +26,22 @@
 </div>
 <div style="display: flex; flex-direction: row">
     <div id="rail" class="navigation-rail surface-first">
-        <button class="fab tertiary-container ">
-            <img src="../static/images/edit.png">
-        </button>
+        <a class="fab tertiary-container" href="/editor">
+            <img src="../../static/images/edit.png">
+        </a>
         <nav class="navs">
             <a class="nav active">
                 <div class="naaav">
-                    <img class="icon" src="../static/images/design_services.png"/>
+                    <img class="icon" src="../../static/images/design_services.png"/>
                     <p class="label-medium" style="text-align: center">
                         Editor
                     </p>
                 </div>
 
             </a>
-            <a class="nav">
-                <div class="naaav" href="/about">
-                    <img class="icon" src="../static/images/help.png"/>
+            <a class="nav"  href="/about">
+                <div class="naaav">
+                    <img class="icon" src="../../static/images/help.png"/>
                     <p class="label-medium" style="text-align: center">
                         About
                     </p>
@@ -49,7 +49,7 @@
             </a>
             <a class="nav active" href="/contact">
                 <div class="naaav">
-                    <img class="icon" src="../static/images/contacts.png"/>
+                    <img class="icon" src="../../static/images/contacts.png"/>
                     <p class="label-medium" style="text-align: center">
                         Contact
                     </p>

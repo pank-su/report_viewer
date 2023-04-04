@@ -1,4 +1,4 @@
-% rebase('layout.tpl', title=title)
+% rebase('layout.tpl', title=title, userExist=False)
 
 <h2>{{ title }}.</h2>
 
