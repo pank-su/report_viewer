@@ -7,10 +7,10 @@ from datetime import datetime
 
 import pypandoc
 import storage3.utils
-from bottle import route, view, request, response, FileUpload, BaseRequest, redirect
+from bottle import route, view, request, response, FileUpload, BaseRequest, redirect, HTTPResponse
 from supabase import create_client, Client
 
-BaseRequest.MEMFILE_MAX = 1024 * 1024 # ограничение по памяти
+BaseRequest.MEMFILE_MAX = 1024 * 1024  # ограничение по памяти
 
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
@@ -65,7 +65,7 @@ def editor():
             year=datetime.now().year,
             userExist=True,
             files=storage.list(),
-            user_id = user_id
+            user_id=user_id
         )
     else:
         return dict(
@@ -189,18 +189,24 @@ def preview_reload():
 
 
 @route("/content/<filename>")
-def get_content(filename):
+def get_content(filename: str):
     """Сохраняет файл в директории save_path и возвращает значение"""
+    if filename.endswith((".png", ".jpg")):
+        return HTTPResponse(status=400, body="This is not text")
     user_id = request.get_cookie("user_id", SECRET)
     save_path = savable_path + user_id + "/"
     check_path(save_path)
     if user_id is None:
         return None
+
     with open(save_path + filename, "wb") as f:
         res = supabase.storage.from_(user_id).download(filename)
         f.write(res)
-    with open(save_path + filename, "r", encoding="utf-8") as f:
-        return f.read()
+    try:
+        with open(save_path + filename, "r", encoding="utf-8") as f:
+            return f.read()
+    except UnicodeDecodeError:
+        return HTTPResponse(status=400, body="This is not text")
 
 
 @route("/logout")
@@ -208,4 +214,3 @@ def logout():
     supabase.auth.sign_out()
     response.set_cookie("user_id", "")
     redirect("/")
-
