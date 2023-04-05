@@ -1,6 +1,6 @@
 % rebase('layout.tpl', title='Editor', userExist=userExist)
 
-
+<script src="https://cdn.jsdelivr.net/gh/xxjapp/xdialog@3/xdialog.min.js"></script>
 <div class="twos" id="editor_page" style="display: grid; width: 100%">
     % if userExist:
     <div id="files" class="surface-first">
@@ -60,7 +60,7 @@
 
     function copyText(text) {
         navigator.clipboard.writeText(text);
-        // alert("Ссылка скопирована в буфер обмена")
+        openDialog("Ссылка скопирована в буфер обмена")
     }
 
 
@@ -85,8 +85,9 @@
                 document.getElementById("enterArea").removeAttribute("readonly")
                 document.getElementById("enterArea").textContent = xhr.responseText
 
-            } else{
-
+            } else if (xhr.readyState === 4 && xhr.status === 400) {
+                document.getElementById("enterArea").setAttribute("readonly", "")
+                document.getElementById("enterArea").textContent = xhr.responseText
             }
         };
         xhr.send()
@@ -103,12 +104,21 @@
             form.append("file", file)
             fetch("/upload", {method: "POST", body: form}).then(function (r) {
                 // если файл загрузился, то перезагружаем страницу
-                if (r.ok){
+                if (r.ok) {
                     location.reload()
                 }
             })
         }
         input.click();
+    }
+
+    function openDialog(text){
+        xdialog.open({
+                title: null,
+                body: text,
+                style: 'text-align:center;',
+                buttons: ['ok']
+            })
     }
 
     // Если пользователь есть, то добавляем класс к основному div, для изменения стилей
