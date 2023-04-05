@@ -16,9 +16,6 @@ url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
 
 supabase: Client = create_client(url, key)
-data = supabase.auth.sign_in_with_oauth({
-    "provider": 'github'
-})
 
 # переменная, содержащая секретный ключ, используемый для защиты куков
 SECRET = os.environ.get("SECRET_TOKEN")
@@ -48,6 +45,8 @@ def editor():
             user_id = supabase.auth.get_user().user.id
         except Exception as e:
             user_id = None
+        if user_id is None:
+            supabase.auth.set_session(query["access_token"])
     elif user_id is None:
         try:
             user_id = request.get_cookie("user_id", secret=SECRET)
