@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/static/material-theme/theme.css"/>
     <link rel="stylesheet" type="text/css" href="/static/styles/general.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xxjapp/xdialog@3/xdialog.min.css">
 
     <title>Report Viewer - {{title}}</title>
 </head>
@@ -46,7 +47,7 @@
                 </div>
             </a>
             <a class="nav" id="nav2" href="/about">
-                <div class="naaav" >
+                <div class="naaav">
                     <img class="icon" src="/static/images/help.png"/>
                     <p class="label-medium" style="text-align: center">
                         About
@@ -54,8 +55,8 @@
                 </div>
             </a>
             <a class="nav" id="nav3" href="/contact">
-                <div class="naaav" >
-                <img class="icon" src="/static/images/contacts.png"/>
+                <div class="naaav">
+                    <img class="icon" src="/static/images/contacts.png"/>
                     <p class="label-medium" style="text-align: center">
                         Contact
                     </p>
@@ -72,8 +73,8 @@
 </body>
 <script>
 
-    function checkTitle(titleName){
-        switch (titleName){
+    function checkTitle(titleName) {
+        switch (titleName) {
             case 'Editor':
                 document.getElementById("nav1").classList.add("active")
                 break;

@@ -44,6 +44,11 @@ def editor():
             supabase.auth.refresh_session(query["refresh_token"])
             user_id = supabase.auth.get_user().user.id
         except Exception as e:
+            try:
+                supabase.auth.set_session(query["access_token"])
+                user_id = supabase.auth.get_user().user.id
+            except Exception as e:
+                user_id = None
             user_id = None
         if user_id is None:
             supabase.auth.set_session(query["access_token"])
@@ -73,7 +78,6 @@ def editor():
             userExist=False,
             files=[],
             user_id=""
-
         )
 
 
