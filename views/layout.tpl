@@ -62,6 +62,14 @@
                     </p>
                 </div>
             </a>
+            <a class="nav" id="nav4" href="/orders">
+                <div class="naaav">
+                    <img class="icon" src="/static/images/order.png"/>
+                    <p class="label-medium" style="text-align: center">
+                        Orders
+                    </p>
+                </div>
+            </a>
         </nav>
     </div>
     <div class="content surface-first">

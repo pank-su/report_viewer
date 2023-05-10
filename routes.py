@@ -7,7 +7,7 @@ from datetime import datetime
 
 import pypandoc
 import storage3.utils
-from bottle import route, view, request, response, FileUpload, BaseRequest, redirect, HTTPResponse
+from bottle import route, view, request, response, FileUpload, BaseRequest, redirect, HTTPResponse, LocalRequest
 from supabase import create_client, Client
 
 BaseRequest.MEMFILE_MAX = 1024 * 1024  # ограничение по памяти
@@ -33,31 +33,38 @@ def check_path(path: str) -> None:
 check_path(savable_path)
 
 
+def check_auth(request: LocalRequest) -> int:
+    query = request.query
+    user_id: int = -1
+    if request.query_string != "":
+        try:
+            supabase.auth.refresh_session(query["refresh_token"])
+            user_id = supabase.auth.get_user().user.id
+            return user_id
+        except Exception as e:
+            pass
+        try:
+            supabase.auth.set_session(query["access_token"])
+            user_id = supabase.auth.get_user().user.id
+            return user_id
+        except Exception as e:
+            pass
+    elif user_id == -1:
+        try:
+            user_id = request.get_cookie("user_id", secret=SECRET)
+            return user_id
+        except Exception as e:
+            pass
+
+
 @route('/')
 @route('/editor')
 @view('editor')
 def editor():
     query = request.query
-    user_id = None
-    if request.query_string != "":
-        try:
-            supabase.auth.refresh_session(query["refresh_token"])
-            user_id = supabase.auth.get_user().user.id
-        except Exception as e:
-            try:
-                supabase.auth.set_session(query["access_token"])
-                user_id = supabase.auth.get_user().user.id
-            except Exception as e:
-                user_id = None
-            user_id = None
-        if user_id is None:
-            supabase.auth.set_session(query["access_token"])
-    elif user_id is None:
-        try:
-            user_id = request.get_cookie("user_id", secret=SECRET)
-        except Exception as e:
-            user_id = None
-    if user_id is not None:
+    user_id = check_auth(query)
+
+    if user_id != 0:
         response.set_cookie("user_id", user_id, secret=SECRET)
         try:
             supabase.storage.create_bucket(user_id)
@@ -211,6 +218,16 @@ def get_content(filename: str):
             return f.read()
     except UnicodeDecodeError:
         return HTTPResponse(status=400, body="This is not text")
+
+
+@route('/orders')
+@view("orders")
+def orders():
+    """Отображает экран с заказами"""
+    return {
+        "title": "Заказы",
+        "userExist": False
+    }
 
 
 @route("/logout")
