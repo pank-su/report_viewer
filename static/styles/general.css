@@ -156,9 +156,9 @@ body {
     height: 100%;
 }
 
-.content div {
-    height: 100%;
-}
+/*.content div {*/
+/*    height: 100%;*/
+/*}*/
 
 body {
     height: 100vh;
@@ -256,4 +256,71 @@ iframe::content {
     color: var(--md-sys-color-on-primary);
     border-radius: 100px;
     border: none;
+}
+
+.grid {
+    display: grid;
+}
+
+.card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    isolation: isolate;
+    border-radius: 12px;
+    width: 360px;
+    height: 96px;
+    /*padding: 16px;*/
+    background: #FFFBFF;
+    border: 1px solid #D6C2C5;
+}
+
+.round-avatar{
+    border-radius: 100%;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+
+}
+
+.column{
+    display: flex;
+    flex-direction: column;
+}
+
+.row{
+    display: flex;
+    flex-direction: row;
+
+}
+
+.space-bt{
+    justify-content: space-between;
+}
+
+p{
+    margin: 0;
+}
+
+.fill-width-card{
+    width: 192px;
+    margin: 0 10px;
+}
+
+.end-card{
+    height: 100%;
+    width: 80px;
+    border-radius: 0 10px 10px 0;
+
+    object-fit: cover;
+}
+
+.in-card{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+
 }

@@ -33,9 +33,9 @@ def check_path(path: str) -> None:
 check_path(savable_path)
 
 
-def check_auth(request: LocalRequest) -> int:
+def check_auth(request: LocalRequest) -> str:
     query = request.query
-    user_id: int = -1
+    user_id = None
     if request.query_string != "":
         try:
             supabase.auth.refresh_session(query["refresh_token"])
@@ -49,22 +49,22 @@ def check_auth(request: LocalRequest) -> int:
             return user_id
         except Exception as e:
             pass
-    elif user_id == -1:
+    elif user_id is None:
         try:
             user_id = request.get_cookie("user_id", secret=SECRET)
             return user_id
         except Exception as e:
             pass
+    return user_id
 
 
 @route('/')
 @route('/editor')
 @view('editor')
 def editor():
-    query = request.query
-    user_id = check_auth(query)
+    user_id = check_auth(request)
 
-    if user_id != 0:
+    if user_id is not None:
         response.set_cookie("user_id", user_id, secret=SECRET)
         try:
             supabase.storage.create_bucket(user_id)
@@ -224,9 +224,13 @@ def get_content(filename: str):
 @view("orders")
 def orders():
     """Отображает экран с заказами"""
+    user_id = check_auth(request)
+    orders_ = supabase.table("orders").select("*").execute()
+
     return {
         "title": "Заказы",
-        "userExist": False
+        "userExist": user_id is not None,
+        "orders": orders_
     }
 
 
