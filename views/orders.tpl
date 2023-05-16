@@ -5,17 +5,39 @@
     <div class="card">
         <div class="in-card">
             <img class="round-avatar"
-                 src="https://sun9-40.userapi.com/impg/BFGPnEaCrirYv9QS9PXF-1HL0IlkvmE-5xAbVw/5574gl963Ag.jpg?size=1627x2160&quality=95&sign=d1053c00be7df8f1540c97823683131f&type=album"/>
+                 src="{{order['user_image']}}"/>
             <div style="gap: 4px" class="column fill-width-card">
-                <p>Название товара</p>
+                <p>{{order['name']}}</p>
                 <div class="row space-bt">
-                    <p>Описание</p>
-                    <p>Цена</p>
+                    <p>{{order['description']}}</p>
+                    <p>{{order['price']}} ₽</p>
                 </div>
             </div>
         </div>
         <img class="end-card"
-             src="https://sun9-40.userapi.com/impg/BFGPnEaCrirYv9QS9PXF-1HL0IlkvmE-5xAbVw/5574gl963Ag.jpg?size=1627x2160&quality=95&sign=d1053c00be7df8f1540c97823683131f&type=album"/>
+             src="{{order['image_path']}}"/>
     </div>
     % end
 </div>
+<form action="/submit_order" method="post" enctype="multipart/form-data">
+  <label for="order_name">Название заказа:</label>
+  <input type="text" id="order_name" name="order_name" required>
+
+  <label for="order_description">Описание заказа:</label>
+  <textarea id="order_description" name="order_description" required></textarea>
+
+  <label for="order_price">Цена:</label>
+  <input type="number" id="order_price" name="order_price" required>
+
+  <label for="order_due_date">Дата исполнения:</label>
+  <input type="date" id="order_due_date" name="order_due_date" required>
+
+  <label for="order_phone">Телефон обратной связи:</label>
+  <input type="tel" id="order_phone" name="order_phone" placeholder="Введите ваш телефонный номер" required>
+
+  <label for="order_image">Выберите картинку:</label>
+  <input type="file" id="order_image" name="order_image" accept="image/*" required>
+
+
+  <input type="submit" value="Отправить заказ">
+</form>

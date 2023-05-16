@@ -9,6 +9,7 @@ import pypandoc
 import storage3.utils
 from bottle import route, view, request, response, FileUpload, BaseRequest, redirect, HTTPResponse, LocalRequest
 from supabase import create_client, Client
+from phone_check import validate_phone_number
 
 BaseRequest.MEMFILE_MAX = 1024 * 1024  # ограничение по памяти
 
@@ -225,13 +226,59 @@ def get_content(filename: str):
 def orders():
     """Отображает экран с заказами"""
     user_id = check_auth(request)
-    orders_ = supabase.table("orders").select("*").execute()
+
+    orders_ = supabase.table("orders").select("*").execute().data
+    for i in range(len(orders_)):
+        # Берём аватарки пользователей
+        orders_[i]['user_image'] = supabase.auth.admin.get_user_by_id(orders_[i]["creator"]).user.user_metadata[
+            'avatar_url']
+        # Также заменям аватарки у картинок заказов если их нет
+        if orders_[i]['image_path'] is None:
+            orders_[i]['image_path'] = 'https://media.istockphoto.com/id/1281804798/photo/very-closeup-view-of' \
+                                       '-amazing-domestic-pet-in-mirror-round-fashion-sunglasses-is-isolated-on.jpg?b' \
+                                       '=1&s=170667a&w=0&k=20&c=4CLWHzcFeku9olx0np2htie2cOdxWamO-6lJc-Co8Vc='
 
     return {
         "title": "Заказы",
         "userExist": user_id is not None,
         "orders": orders_
     }
+
+
+@route("/submit_order", method='POST')
+def submit_order():
+    upload: FileUpload = request.files.get('order_image')
+    phone = request.forms.get('order_phone')
+    user_id = request.get_cookie("user_id", SECRET)
+    print(user_id)
+    price = request.forms.get('order_price')
+    if int(price) < 0:
+        return redirect("/orders?error=Цена меньше 0")
+    if not validate_phone_number(phone):
+        return redirect("/orders?error=Формат ввода телефона не является корректным")
+    date = request.forms.get('order_due_date')
+    description = request.forms.get('order_description')
+    name = request.forms.get('order_description')
+
+    check_path(temporary_path)
+    upload.save(temporary_path + upload.filename)
+    is_sent = False
+    new_filename = upload.filename
+    file_id = 0
+    image_url = ""
+    while not is_sent:
+        try:
+            supabase.storage.get_bucket("images").upload(new_filename, temporary_path + upload.filename)
+            image_url = supabase.storage.from_("images").get_public_url(new_filename)
+            is_sent = True
+        except storage3.utils.StorageException:
+            file_id += 1
+            new_filename = ".".join(upload.filename.split('.')[:-1]) + f"_{file_id}." + upload.filename.split('.')[-1]
+    shutil.rmtree(temporary_path)
+
+    supabase.table("orders").insert({"name": name, "description": description, "date_complete": date, "creator": user_id,
+         "price": price, "image_path": str(image_url)}).execute()
+    return redirect('/orders')
 
 
 @route("/logout")
