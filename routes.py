@@ -225,6 +225,13 @@ def get_content(filename: str):
 @view("orders")
 def orders():
     """Отображает экран с заказами"""
+    error = ""
+    try:
+        error = request.query.error
+    except KeyError:
+        pass
+
+    # Проверка авторизации
     user_id = check_auth(request)
 
     orders_ = supabase.table("orders").select("*").execute().data
@@ -241,25 +248,34 @@ def orders():
     return {
         "title": "Заказы",
         "userExist": user_id is not None,
-        "orders": orders_
+        "orders": orders_,
+        "error": error
     }
 
 
 @route("/submit_order", method='POST')
 def submit_order():
+    """Функция для добавления новго заказа"""
     upload: FileUpload = request.files.get('order_image')
-    phone = request.forms.get('order_phone')
+    phone: str = request.forms.get('order_phone')
     user_id = request.get_cookie("user_id", SECRET)
-    print(user_id)
-    price = request.forms.get('order_price')
+    date: str = request.forms.get('order_due_date')
+    description: str = request.forms.get('order_description')
+    name: str = request.forms.get('order_description')
+    price: str = request.forms.get('order_price')
+    # пользователь авторизован
+    if user_id is None:
+        return redirect("/orders?error=Вы не авторизованы")
+    # пустые поля
+    if phone.strip() == '' or date.strip() == '' or description.strip() == "" or name.strip() == "" or price.strip() == "":
+        return redirect("/orders?error=Не все поля заполнены")
+    # проверка цены
     if int(price) < 0:
         return redirect("/orders?error=Цена меньше 0")
+    # телефон некорректный
     if not validate_phone_number(phone):
         return redirect("/orders?error=Формат ввода телефона не является корректным")
-    date = request.forms.get('order_due_date')
-    description = request.forms.get('order_description')
-    name = request.forms.get('order_description')
-
+    # отправка картинки на сервер
     check_path(temporary_path)
     upload.save(temporary_path + upload.filename)
     is_sent = False
@@ -274,8 +290,10 @@ def submit_order():
         except storage3.utils.StorageException:
             file_id += 1
             new_filename = ".".join(upload.filename.split('.')[:-1]) + f"_{file_id}." + upload.filename.split('.')[-1]
+    # удаление временной папки
     shutil.rmtree(temporary_path)
 
+    # добавление новой записи в таблицу с заказами
     supabase.table("orders").insert({"name": name, "description": description, "date_complete": date, "creator": user_id,
          "price": price, "image_path": str(image_url)}).execute()
     return redirect('/orders')
