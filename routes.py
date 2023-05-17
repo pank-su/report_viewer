@@ -37,7 +37,7 @@ check_path(savable_path)
 def check_auth(request: LocalRequest) -> str:
     query = request.query
     user_id = None
-    if request.query_string != "":
+    if request.query_string != "" and "error" not in request.query_string:
         try:
             supabase.auth.refresh_session(query["refresh_token"])
             user_id = supabase.auth.get_user().user.id
@@ -272,6 +272,9 @@ def submit_order():
     # проверка цены
     if int(price) < 0:
         return redirect("/orders?error=Цена меньше 0")
+    # проверка даты
+    if datetime.strptime(date, "%Y-%m-%d") < datetime.now():
+        return redirect("/orders?error=Мы не можем выполнить заказ в прошлом, установить дату в будующем")
     # телефон некорректный
     if not validate_phone_number(phone):
         return redirect("/orders?error=Формат ввода телефона не является корректным")
