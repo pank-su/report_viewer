@@ -65,7 +65,9 @@ def check_auth(request: LocalRequest) -> str:
 def editor():
     user_id = check_auth(request)
 
+
     if user_id is not None:
+        # Если пользователь авторизован, то задаём cookie с его ID и создаём ему шаблон
         response.set_cookie("user_id", user_id, secret=SECRET)
         try:
             supabase.storage.create_bucket(user_id)
@@ -81,6 +83,7 @@ def editor():
             user_id=user_id
         )
     else:
+        # Если пользователь не авторизован
         return dict(
             year=datetime.now().year,
             userExist=False,
@@ -261,23 +264,25 @@ def submit_order():
     user_id = request.get_cookie("user_id", SECRET)
     date: str = request.forms.get('order_due_date')
     description: str = request.forms.get('order_description')
-    name: str = request.forms.get('order_description')
+    name: str = request.forms.get('order_name')
     price: str = request.forms.get('order_price')
+    if len(name) > 30:
+        return redirect("/orders?error=Order name is too long")
     # пользователь авторизован
     if user_id is None:
-        return redirect("/orders?error=Вы не авторизованы")
+        return redirect("/orders?error=You are not authorized")
     # пустые поля
     if phone.strip() == '' or date.strip() == '' or description.strip() == "" or name.strip() == "" or price.strip() == "":
-        return redirect("/orders?error=Не все поля заполнены")
+        return redirect("/orders?error=Not all fields are filled")
     # проверка цены
     if int(price) < 0:
-        return redirect("/orders?error=Цена меньше 0")
+        return redirect("/orders?error=Price less than 0")
     # проверка даты
     if datetime.strptime(date, "%Y-%m-%d") < datetime.now():
-        return redirect("/orders?error=Мы не можем выполнить заказ в прошлом, установить дату в будующем")
+        return redirect("/orders?error=We are unable to fulfill an order in the past, please set the date in the future")
     # телефон некорректный
     if not validate_phone_number(phone):
-        return redirect("/orders?error=Формат ввода телефона не является корректным")
+        return redirect("/orders?error=Phone input format is not correct")
     # отправка картинки на сервер
     check_path(temporary_path)
     upload.save(temporary_path + upload.filename)
@@ -286,6 +291,7 @@ def submit_order():
     file_id = 0
     image_url = ""
     while not is_sent:
+        # Если картинка уже существует до добавляем число на конец
         try:
             supabase.storage.get_bucket("images").upload(new_filename, temporary_path + upload.filename)
             image_url = supabase.storage.from_("images").get_public_url(new_filename)
@@ -294,7 +300,7 @@ def submit_order():
             file_id += 1
             new_filename = ".".join(upload.filename.split('.')[:-1]) + f"_{file_id}." + upload.filename.split('.')[-1]
     # удаление временной папки
-    shutil.rmtree(temporary_path)
+    # shutil.rmtree(temporary_path)
 
     # добавление новой записи в таблицу с заказами
     supabase.table("orders").insert({"name": name, "description": description, "date_complete": date, "creator": user_id,

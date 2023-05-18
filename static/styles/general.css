@@ -265,7 +265,7 @@ iframe::content {
     grid-template-rows: 1fr;
     grid-gap: 30px;
     min-height: 0;
-    max-height: 50%;
+    max-height: 30%;
     overflow-y: scroll;
 }
 

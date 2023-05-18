@@ -38,6 +38,3 @@ class TestPhoneNumberValidation(unittest.TestCase):
 
             self.assertFalse(validate_phone_number(number))
 
-
-if __name__ == "__main__":
-    unittest.main()

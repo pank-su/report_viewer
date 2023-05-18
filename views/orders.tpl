@@ -8,7 +8,7 @@
                  src="{{order['user_image']}}"/>
             <div style="gap: 4px" class="column fill-width-card">
                 <p>{{order['name']}}</p>
-                <p>{{order['description']}}</p>
+                <p style=" overflow: hidden; white-space: nowrap;">{{order['description']}}</p>
                 <div class="row space-bt">
                     <p>TODO {{order['date_complete']}}</p>
                     <p>{{order['price']}} ₽</p>
@@ -29,7 +29,7 @@
   <textarea id="order_description" name="order_description" required></textarea>
 
   <label for="order_price">Price:</label>
-  <input type="number" id="order_price" name="order_price" required>
+  <input type="number" placeholder="price in the ₽ (roubles)" id="order_price" name="order_price" required>
 
   <label for="order_due_date">Date complete:</label>
   <input type="date" id="order_due_date" name="order_due_date" required>
